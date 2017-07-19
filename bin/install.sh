@@ -3,7 +3,7 @@ set -o errtrace
 set -euo pipefail
 IFS=$'\n\t'
 
-SYSINIT=/etc/init/
+SYSINIT=/etc/systemd
 INSTALL_DIR="$( cd "${0%/*}/.." && pwd )"
 
 trap_err() {
@@ -19,7 +19,7 @@ execute() {
 
 template() {
   for t in ${INSTALL_DIR}/init/*.template; do
-    sed -r "s|@@ASPERA@@|${INSTALL_DIR}|" \
+    sed -r "s|@@APP@@|${INSTALL_DIR}|" \
       "${t}" > "${t%.*}"
 
     if [ ! -f "${SYSINIT}/$(basename ${t%.*})" ]; then
