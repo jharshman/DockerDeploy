@@ -6,6 +6,20 @@ IFS=$'\n\t'
 SYSINIT=/etc/systemd
 INSTALL_DIR="$( cd "${0%/*}/.." && pwd )"
 
+usage() {
+  cat << EOM
+  usage:
+
+  ./$0 [tag]
+
+  tag denotes the combination of the namespace + the image tag
+
+  example:
+  $ ./$0 master:1df9571
+
+EOM
+}
+
 trap_err() {
   echo "[!] ${0}: an error occured"
   exit 1
@@ -38,9 +52,16 @@ enableservice() {
   done
 }
 
+writeenv() {
+  [[ ! -f "${INSTALL_DIR}/.env" ]] && echo "TAG=$TAG" >> "${INSTALL_DIR}/.env"
+  chmod 666 "${INSTALL_DIR}/.env"
+}
+
 main() {
+  TAG=${1:-master/latest}
   execute "template"
   execute "enableservices"
+  execute "writeenv"
   ln -s ${INSTALL_DIR}/bin/update-tag.sh /usr/local/bin/update-tag.sh
 }
 
@@ -49,4 +70,4 @@ if [ $EUID -ne 0 ]; then
   exit 1
 fi
 
-main
+main "$@"
