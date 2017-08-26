@@ -9,7 +9,7 @@ TimeoutStopSec=30
 Restart=always
 RestartSec=10
 
-WorkingDirectory=@@APP@@
+WorkingDirectory=@@APPROOT@@
 
 ExecStart-=@@APP@.sh --create
 ExecStop=@@APP@@.sh --destroy
