@@ -3,7 +3,7 @@ set -o errtrace
 set -euo pipefail
 IFS=$'\n\t'
 
-SYSINIT=/etc/systemd
+SYSINIT=$(pidof systemd > /dev/null && echo "/etc/systemd" || echo "/etc/init")
 INSTALL_DIR="$( cd "${0%/*}/.." && pwd )"
 
 usage() {
@@ -33,7 +33,7 @@ execute() {
 
 template() {
   for t in ${INSTALL_DIR}/init/*.template; do
-    sed -r "s|@@APP@@|${INSTALL_DIR}|" \
+    sed -r "s|@@PREFIX@@|${INSTALL_DIR}|; s|@@APP@@|cadvisor|g" \
       "${t}" > "${t%.*}"
 
     if [ ! -f "${SYSINIT}/$(basename ${t%.*})" ]; then
@@ -60,7 +60,7 @@ writeenv() {
 main() {
   TAG=${1:-master/latest}
   execute "template"
-  execute "enableservices"
+  execute "enableservice"
   execute "writeenv"
   ln -s ${INSTALL_DIR}/bin/update-tag.sh /usr/local/bin/update-tag.sh
 }

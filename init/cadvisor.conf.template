@@ -1,0 +1,38 @@
+description "cadvisor docker service"
+author "Joshua Harshman joshua@joshuaharshman.com"
+
+start on filesystem and started docker
+stop on runlevel [!2345]
+
+respawn limit 3 240
+
+pre-start script
+  while [ ! -f @@PREFIX@@/apps/@@APP@@/docker-compose.yml ]
+  do
+    sleep 1
+  done
+
+  . @@PREFIX@@/apps/@@APP@@/.env
+  export ENV=${ENV}
+  export TAG=${TAG}
+
+  if docker ps | grep cadvisor$
+  then
+    /usr/local/bin/docker-compose -f @@PREFIX@@/apps/@@APP@@/docker-compose.yml kill cadvisor
+    /usr/loal/bin/docker-compose -f @@PREFIX@@/apps/@@APP@@/docker-compose.yml rm -rf -v cadvisor
+  fi
+  /usr/local/bin/docker-compose -f @@PREFIX@@/apps/@@APP@@/docker-compose.yml up -d --force-recreate --no-deps cadvisor
+end script
+
+script
+  loop() {
+    while docker ps | grep -q $1; do
+      sleep 2
+    done
+  }
+  loop "cadvisor$"
+end script
+
+post-stop script
+  /usr/local/bin/docker-compose -f @@PREFIX@@/apps/@@APP@@/docker-compose.yml stop cadvisor
+end script
