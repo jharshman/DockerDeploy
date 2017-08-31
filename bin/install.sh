@@ -46,9 +46,13 @@ template() {
 }
 
 enableservice() {
-  systemctl daemon-reload
-  for t in ${INSTALL_DIR}/init/*.service; do
-    systemctl enable $t
+  #systemctl daemon-reload
+  #for t in ${INSTALL_DIR}/init/*.service; do
+  #  systemctl enable $t
+  #done
+  initctl reload-configuration
+  for t in ${INSTALL_DIR}/init/*.conf; do
+    service ${t%.*} start 
   done
 }
 
