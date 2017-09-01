@@ -52,7 +52,7 @@ enableservice() {
   #done
   initctl reload-configuration
   for t in ${INSTALL_DIR}/init/*.conf; do
-    service ${t%.*} start 
+    service $(basename ${t%.*}) start 
   done
 }
 
