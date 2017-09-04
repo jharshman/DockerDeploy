@@ -1,2 +1,4 @@
 init/*.conf
 init/*.service
+.kitchen/
+.kitchen.local.yml
